@@ -32,7 +32,7 @@ Stats
 
 From my brief testing, given good conditions and a good Internet connection, it will complete the above usage example in 0.8 to 1.3 seconds.
 If Steam is down, it will take 30 seconds before giving up and unloading the module.
-Note: Steam status checking is planned in a later release
+Note: Steam status checking is planned in a later release, as well as a custom timeout for this status check. By default, it will be five seconds.
 
 Credit
 ---------
