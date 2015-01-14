@@ -25,12 +25,18 @@ end
 Events:Subscribe("PlayerJoin", PlayerJoin)
 ```
 
+This sends the Base64 for the player's avatar to said player, where you can draw it or do whatever.
+
 Stats
 ---------
 
 From my brief testing, given good conditions and a good Internet connection, it will complete the above usage example in 0.8 to 1.3 seconds.
 If Steam is down, it will take 30 seconds before giving up and unloading the module.
-Note: Steam status checking is planned in a later release
+Note: Steam status checking is planned in a later release, as well as a custom timeout for this status check. By default, it will be five seconds.
+
+Credit
+---------
+Huge credit to three members of the JC-MP community: Jman100, SK83RJOSH and Trix, who helped me with the external libraries, which were giving me so much trouble beforehand.
 
 Misc
 --------
