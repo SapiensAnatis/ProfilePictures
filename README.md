@@ -32,6 +32,10 @@ From my brief testing, given good conditions and a good Internet connection, it 
 If Steam is down, it will take 30 seconds before giving up and unloading the module.
 Note: Steam status checking is planned in a later release
 
+Credit
+---------
+Huge credit to three members of the JC-MP community: Jman100, SK83RJOSH and Trix, who helped me with the external libraries, which were giving me so much trouble beforehand.
+
 Misc
 --------
 The script currently is not optimized for large servers. Use at your own risk.
