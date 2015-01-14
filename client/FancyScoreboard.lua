@@ -1,25 +1,36 @@
-PicturesTable = {}
-PlayerTable = {}
+class("FancyScoreboard")
 
-startpos = Vector2(Render.Width/2, 0)
-width = Render.Width/2
-rowHeight = 50
+function FancyScoreboard:__init()  
+  PicturesTable = {}
+  PlayerTable = {}
 
-placeholderAvatar = Image.Create(AssetLocation.Base64,
+  startpos = Vector2(Render.Width/2, 0)
+  width = Render.Width/2
+  rowHeight = 50
+
+  active = false
+
+  PlayerCount = 0
+
+  pos = startpos
+  pos.x = pos.x - width/2
+
+  placeholderAvatar = Image.Create(AssetLocation.Base64,
 "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAgACADASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAgUABgcD/8QALBAAAgEBBgQEBwAAAAAAAAAAAQIDAAQFBhIhMREiMnETFFGBFiVBQmGRwf/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwDI2Zs7cx3ooo57RKsUKSSyNoqICxPsKButu9WfDGLFwvdd5+Us3za0hUhtZAIhUHXQ+v8ABQVyaK0WaVop45IpF3SRSpHsaBWbOvMd60fH01otGCcPT374fxBIzMTlCuYNeGYDb7dO/wCazdete9BG6270xw+eGJLsPljauFqiPgDhxl5hy66a7a0vZWztyneiieaCZJoWeOVGDI6EhlI2IP0NA8xteVrvTF14T2yOWGQSZBDKQTEo0C6afqkC9a966TST2mZ5p3kllc8WdyWZj6knegVWzryneg//2Q==")
+  
+  Events:Subscribe("KeyDown", self, self.TogglePList)
+  Events:Subscribe("ActiveChanged", self, self.ActiveChanged)
+  Events:Subscribe("Render", self, self.RenderFunction)
+  if not GlobalSettings.StoreB64OnClient then
+    Events:Subscribe("ActiveChanged", self, self.Cleanup)
+  end
+  
+  Network:Subscribe("HereAreYourPlayers", self, self.UpdatePlayerTable)
+  Network:Subscribe("AvatarObtained", self, self.CacheAvatarData)
+end
 
-Network:Subscribe("AvatarData", function(args)
-    PicturesTable[tostring(LocalPlayer:GetSteamId())] = Image.Create(AssetLocation.Base64, args)
-end)
 
-active = false
-
-PlayerCount = 0
-
-pos = startpos
-pos.x = pos.x - width/2
-
-function TogglePList(args)
+function FancyScoreboard:TogglePList(args)
   if args.key == 9 then
     active = not active
     print("Active changed...")
@@ -27,9 +38,9 @@ function TogglePList(args)
   end
 end
 
-Events:Subscribe("KeyDown", TogglePList)
 
-function ActiveChanged()
+
+function FancyScoreboard:ActiveChanged()
   Network:Send("ActiveChanged", LocalPlayer)
   -- Request the player avatars for the list
   if active then
@@ -45,7 +56,7 @@ function ActiveChanged()
   end
 end
 
-function Cleanup()
+function FancyScoreboard:Cleanup()
   if not active then
     for i, v in pairs(PicturesTable) do
       PicturesTable[i] = nil
@@ -55,24 +66,24 @@ function Cleanup()
   end
 end
 
-Events:Subscribe("ActiveChanged", ActiveChanged)
-if not GlobalSettings.StoreB64OnClient then
-  Events:Subscribe("ActiveChanged", Cleanup)
-end
 
-function ReceiveNewAvatar(args)
+function FancyScoreboard:CacheAvatarData(args)
   PicturesTable[tostring(args.player:GetSteamId())] = Image.Create(AssetLocation.Base64, args.b64)
   print("Created entry for player", args.player:GetName(), "in pictures table.")
 end
 
-Network:Subscribe("AvatarObtained", ReceiveNewAvatar)
   
 
-function RenderFunction()
+function FancyScoreboard:RenderFunction()
   if active then
     Network:Send("RequestAllPlayers", LocalPlayer)
     pos = startpos
     PlayerCount = 0
+    
+    Render:FillArea(pos + Vector2(0, 0), Vector2(width, rowHeight), Color(0, 0, 0, 72*1.5))
+    Render:DrawText(pos + Vector2(20+32, (rowHeight/2)-8), "Name", Color.White, 17)
+    pos = pos + Vector2(0, rowHeight)
+    
     for i, player in pairs(PlayerTable) do   
       PlayerCount = PlayerCount + 1
       color = Color(0, 0, 0, 0)
@@ -101,10 +112,12 @@ function RenderFunction()
   end
 end
 
-Network:Subscribe("HereAreYourPlayers", function(args)
-    if PlayerTable != args then
-      PlayerTable = args
-    end
-end)
+function FancyScoreboard:UpdatePlayerTable(new)
+  if PlayerTable != new then
+    PlayerTable = new
+  end
+end
 
-Events:Subscribe("Render", RenderFunction)
+FancyScoreboard = FancyScoreboard()
+
+
