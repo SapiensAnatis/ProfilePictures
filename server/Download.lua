@@ -8,7 +8,11 @@ socket.TIMEOUT = GlobalSettings.Timeout
 local json = require("json")
 local mime = require("mime")
 
+AvatarTable = {}
+
 execTimer = Timer()
+
+
 
 
 
@@ -41,7 +45,6 @@ function Player:GetAvatar(size)
   execTimer:Restart()
   print("Fetching Steam avatar of user " .. name .. ".")
   local userdata = http.request("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" .. GlobalSettings.APIKey .. "&steamids=" .. steamid64)
-  print(userdata)
   t = string.split(userdata, "\n")
 
   for i, l in pairs(t) do
@@ -51,34 +54,58 @@ function Player:GetAvatar(size)
     end
   end
   
-  print("\n\nRequesting URL: " .. imageurl .. "!")
+  print("Requesting URL: " .. imageurl .. "!")
   
   b64Data = http.request(imageurl)
-  print(b64Data)
   
   print("Fetch completed after " .. execTimer:GetSeconds() .. ".")
   print("Encoding...")
   
   b64 = ((mime.b64(b64Data)))
   
+  if GlobalSettings.StoreB64OnServer then
+    AvatarTable[tostring(self:GetSteamId())] = {["b64"] = b64, ["size"] = size}
+  end
 
   print("Successfully completed fetch and encode for Steam avatar of user " .. name .. " in " .. execTimer:GetSeconds() .. " seconds!")
   
   return b64
 end
 
+function Player:ssid()
+  return tostring(self:GetSteamId())
+end
+
 
 Events:Subscribe("ClientModuleLoad", function(args)
-    b64 = args.player:GetAvatar("medium")
+    b64 = args.player:GetAvatar("small")
     Network:Send(args.player, "AvatarData", b64)
     b64 = nil
 end)
 
 function RequestAvatar(args, player)
   print("Received avatar request")
-  b64 = args.player:GetAvatar(args.size)
-  Network:Send(player, "AvatarObtained", {["b64"] = b64, ["player"] = args.player})
-  b64 = nil
+  if AvatarTable[args.player:ssid()] then
+    if AvatarTable[args.player:ssid()].size == args.size then
+      Network:Send(player, "AvatarObtained", {["b64"] = AvatarTable[args.player:ssid()].b64, ["player"] = args.player})
+    else
+      b64 = args.player:GetAvatar(args.size)
+      Network:Send(player, "AvatarObtained", {["b64"] = b64, ["player"] = args.player})
+      if GlobalSettings.StoreB64OnServer then
+        AvatarTable[tostring(args.player:GetSteamId())] = {["b64"] = b64, ["size"] = args.size}
+      else
+        b64 = nil
+      end
+    end
+  else
+    b64 = args.player:GetAvatar(args.size)
+    Network:Send(player, "AvatarObtained", {["b64"] = b64, ["player"] = args.player})
+    if GlobalSettings.StoreB64OnServer then
+      AvatarTable[tostring(args.player:GetSteamId())] = {["b64"] = b64, ["size"] = args.size}
+    else
+      b64 = nil
+    end
+  end
 end
 
 Network:Subscribe("RequestPlayerAvatar", RequestAvatar)
