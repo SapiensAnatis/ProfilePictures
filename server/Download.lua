@@ -45,7 +45,7 @@ function Player:GetAvatar(size)
   t = string.split(userdata, "\n")
 
   for i, l in pairs(t) do
-    if string.find(l, "avatar" .. Settings.AvatarSize) != nil then
+    if string.find(l, "\"avatar" .. Settings.AvatarSize .. "\": ") != nil then
       local index, endIndex = string.find(l, "\"avatar" .. Settings.AvatarSize .. "\": ")
       imageurl = string.sub(l, endIndex+2, -3)
     end
@@ -71,4 +71,14 @@ end
 Events:Subscribe("ClientModuleLoad", function(args)
     b64 = args.player:GetAvatar("medium")
     Network:Send(args.player, "AvatarData", b64)
+    b64 = nil
 end)
+
+function RequestAvatar(args, player)
+  print("Received avatar request")
+  b64 = args.player:GetAvatar(args.size)
+  Network:Send(player, "AvatarObtained", {["b64"] = b64, ["player"] = args.player})
+  b64 = nil
+end
+
+Network:Subscribe("RequestPlayerAvatar", RequestAvatar)
