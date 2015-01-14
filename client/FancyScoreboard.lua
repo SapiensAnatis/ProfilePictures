@@ -3,6 +3,8 @@ class("FancyScoreboard")
 function FancyScoreboard:__init()  
   PicturesTable = {}
   PlayerTable = {}
+  PingTable = {}
+  
 
   startpos = Vector2(Render.Width/2, 0)
   width = Render.Width/2
@@ -11,6 +13,10 @@ function FancyScoreboard:__init()
   active = false
 
   PlayerCount = 0
+  
+  localKillcount = 0
+  localDeathcount = 0
+  localPing = 0
 
   pos = startpos
   pos.x = pos.x - width/2
@@ -21,6 +27,8 @@ function FancyScoreboard:__init()
   Events:Subscribe("KeyDown", self, self.TogglePList)
   Events:Subscribe("ActiveChanged", self, self.ActiveChanged)
   Events:Subscribe("Render", self, self.RenderFunction)
+  Events:Subscribe("LocalPlayerInput", self, self.BlockDive)
+  
   if not GlobalSettings.StoreB64OnClient then
     Events:Subscribe("ActiveChanged", self, self.Cleanup)
   end
@@ -80,10 +88,20 @@ function FancyScoreboard:RenderFunction()
     pos = startpos
     PlayerCount = 0
     
-    Render:FillArea(pos + Vector2(0, 0), Vector2(width, rowHeight), Color(0, 0, 0, 72*1.5))
-    Render:DrawText(pos + Vector2(20+32, (rowHeight/2)-8), "Name", Color.White, 17)
-    pos = pos + Vector2(0, rowHeight)
+    Render:FillArea(pos + Vector2(0, 0), Vector2(width, rowHeight), Color(0, 0, 0, 99*1.5))
+    Render:DrawText(pos + Vector2(20+32, (rowHeight/1.5)-8), "Name", Color.White, 17)
+    Render:DrawText(pos + Vector2(20+width/6, (rowHeight/1.5)-8), "Kills", Color.White, 17)
+    Render:DrawText(pos + Vector2(20+width/4, (rowHeight/1.5)-8), "Deaths", Color.White, 17)
     
+    local textpos = pos + Vector2(20+width/4, (rowHeight/1.5)-8)
+    Render:DrawText(textpos + Vector2((width/4 - width/6)*1.2, 0), "Ping", Color.White, 17)
+    
+    
+    Render:DrawLine(pos + Vector2(0, rowHeight), pos + Vector2(width, rowHeight), Color.White)
+
+    
+    
+    pos = pos + Vector2(0, rowHeight)
     for i, player in pairs(PlayerTable) do   
       PlayerCount = PlayerCount + 1
       color = Color(0, 0, 0, 0)
@@ -94,8 +112,13 @@ function FancyScoreboard:RenderFunction()
       end
       
       Render:FillArea(pos + Vector2(0, 0), Vector2(width, rowHeight), color)
+
       
       Render:DrawText(pos + Vector2(20+32, (rowHeight/2)-8), player:GetName(), Color.White, 17)
+      Render:DrawText(pos + Vector2(20+width/6, (rowHeight/2)-8), tostring(localKillcount), Color.White, 17)
+      Render:DrawText(pos + Vector2(20+width/4, (rowHeight/2)-8), tostring(localDeathcount), Color.White, 17)
+      textpos = pos + Vector2(20+width/4, (rowHeight/2)-8)
+      Render:DrawText(textpos + Vector2((width/4 - width/6)*1.2, 0), tostring(localPing), Color.White, 17)
       
       if PicturesTable[tostring(player:GetSteamId())] then
         local pic = PicturesTable[tostring(player:GetSteamId())]
@@ -105,7 +128,10 @@ function FancyScoreboard:RenderFunction()
         placeholderAvatar:SetPosition(pos + Vector2(10, (rowHeight/6)))
         placeholderAvatar:Draw()
       end
-        
+      
+      pos = pos - Vector2(0, rowHeight)
+      Render:DrawText(pos + Vector2(20+width/1.24, (rowHeight/1.5)-8), "Total players: " .. PlayerCount, Color.White, 17)
+      pos = pos + Vector2(0, rowHeight)
       
       pos = pos + Vector2(0, rowHeight)
     end
@@ -115,6 +141,14 @@ end
 function FancyScoreboard:UpdatePlayerTable(new)
   if PlayerTable != new then
     PlayerTable = new
+  end
+end
+
+function FancyScoreboard:BlockDive(args)
+  if args.input == 129 then
+    return false
+  else
+    --print(args.input)
   end
 end
 

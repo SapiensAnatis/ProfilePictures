@@ -32,6 +32,9 @@ function DownloadPictures:GetAvatarOnJoin(args)
     b64 = args.player:GetAvatar("small")
     Network:Broadcast("AvatarObtained", {["b64"] = b64, ["player"] = args.player})
     b64 = nil
+    
+    local nArgs = args.player:GetPing()
+    Network:Send(args.player, "DeliverPing", nArgs)
 end
 
 
@@ -61,6 +64,7 @@ function DownloadPictures:RequestAvatar(args, player)
 end
 
 DownloadPictures = DownloadPictures()
+
 
 function Player:GetAvatar(size)
   
@@ -119,4 +123,9 @@ function Player:ssid()
   return tostring(self:GetSteamId())
 end
 
+Network:Subscribe("RequestPing", function(args, player)
+
+    local nArgs = player:GetPing()
+    Network:Send(player, "DeliverPing", nArgs)
+end)
 
