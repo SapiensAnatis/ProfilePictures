@@ -7,8 +7,11 @@ function FancyScoreboard:__init()
   
 
   startpos = Vector2(Render.Width/2, 0)
-  width = Render.Width/2
+  
   rowHeight = 50
+  width = Render.Width/2
+  scrollAmount = 0
+  allowScroll = false
 
   active = false
 
@@ -28,6 +31,7 @@ function FancyScoreboard:__init()
   Events:Subscribe("ActiveChanged", self, self.ActiveChanged)
   Events:Subscribe("Render", self, self.RenderFunction)
   Events:Subscribe("LocalPlayerInput", self, self.BlockDive)
+  Events:Subscribe("MouseScroll", self, self.Scroll)
   
   if not GlobalSettings.StoreB64OnClient then
     Events:Subscribe("ActiveChanged", self, self.Cleanup)
@@ -41,6 +45,7 @@ end
 function FancyScoreboard:TogglePList(args)
   if args.key == 9 then
     active = not active
+    scrollAmount = 0
     print("Active changed...")
     Events:Fire("ActiveChanged")
   end
@@ -84,17 +89,19 @@ end
 
 function FancyScoreboard:RenderFunction()
   if active then
+
+    width = Render.Width/2
     Network:Send("RequestAllPlayers", LocalPlayer)
-    pos = startpos
+    pos = (Vector2(Render.Width/2, scrollAmount) - Vector2(width/2, 0))
     PlayerCount = 0
     
     Render:FillArea(pos + Vector2(0, 0), Vector2(width, rowHeight), Color(0, 0, 0, 99*1.5))
     Render:DrawText(pos + Vector2(20+32, (rowHeight/1.5)-8), "Name", Color.White, 17)
-    Render:DrawText(pos + Vector2(20+width/6, (rowHeight/1.5)-8), "Kills", Color.White, 17)
-    Render:DrawText(pos + Vector2(20+width/4, (rowHeight/1.5)-8), "Deaths", Color.White, 17)
+    Render:DrawText(pos + Vector2(20+width/5, (rowHeight/1.5)-8), "Kills", Color.White, 17)
+    Render:DrawText(pos + Vector2(20+width/3.7, (rowHeight/1.5)-8), "Deaths", Color.White, 17)
     
     local textpos = pos + Vector2(20+width/4, (rowHeight/1.5)-8)
-    Render:DrawText(textpos + Vector2((width/4 - width/6)*1.2, 0), "Ping", Color.White, 17)
+    Render:DrawText(textpos + Vector2((width/3.7 - width/6)*1.2, 0), "Ping", Color.White, 17)
     
     
     Render:DrawLine(pos + Vector2(0, rowHeight), pos + Vector2(width, rowHeight), Color.White)
@@ -115,10 +122,10 @@ function FancyScoreboard:RenderFunction()
 
       
       Render:DrawText(pos + Vector2(20+32, (rowHeight/2)-8), player:GetName(), Color.White, 17)
-      Render:DrawText(pos + Vector2(20+width/6, (rowHeight/2)-8), tostring(localKillcount), Color.White, 17)
-      Render:DrawText(pos + Vector2(20+width/4, (rowHeight/2)-8), tostring(localDeathcount), Color.White, 17)
+      Render:DrawText(pos + Vector2(20+width/5, (rowHeight/2)-8), tostring(localKillcount), Color.White, 17)
+      Render:DrawText(pos + Vector2(20+width/3.7, (rowHeight/2)-8), tostring(localDeathcount), Color.White, 17)
       textpos = pos + Vector2(20+width/4, (rowHeight/2)-8)
-      Render:DrawText(textpos + Vector2((width/4 - width/6)*1.2, 0), tostring(localPing), Color.White, 17)
+      Render:DrawText(textpos + Vector2((width/3.7 - width/6)*1.2, 0), tostring(localPing), Color.White, 17)
       
       if PicturesTable[tostring(player:GetSteamId())] then
         local pic = PicturesTable[tostring(player:GetSteamId())]
@@ -129,12 +136,15 @@ function FancyScoreboard:RenderFunction()
         placeholderAvatar:Draw()
       end
       
-      pos = pos - Vector2(0, rowHeight)
-      Render:DrawText(pos + Vector2(20+width/1.24, (rowHeight/1.5)-8), "Total players: " .. PlayerCount, Color.White, 17)
-      pos = pos + Vector2(0, rowHeight)
       
-      pos = pos + Vector2(0, rowHeight)
     end
+      pos = pos - Vector2(0, rowHeight)
+      Render:DrawText(pos + Vector2(20+width/1.38, (rowHeight/1.5)-8), "Total players: " .. PlayerCount, Color.White, 17)
+      pos = pos + Vector2(0, rowHeight)
+
+      if pos.y > Render.Height then
+        allowScroll = true
+      end
   end
 end
 
@@ -149,6 +159,18 @@ function FancyScoreboard:BlockDive(args)
     return false
   else
     --print(args.input)
+  end
+end
+
+function FancyScoreboard:Scroll(args)
+  if allowScroll then
+    if delta == -1 then
+      scrollAmount = scrollAmount - args.delta * 10
+    else
+      if scrollAmount < 0 then
+        scrollAmount = scrollAmount - args.delta * 10
+      end
+    end
   end
 end
 
