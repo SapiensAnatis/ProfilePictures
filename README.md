@@ -25,6 +25,8 @@ end
 Events:Subscribe("PlayerJoin", PlayerJoin)
 ```
 
+This sends the Base64 for the player's avatar to said player, where you can draw it or do whatever.
+
 Stats
 ---------
 
