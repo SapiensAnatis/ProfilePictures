@@ -29,7 +29,6 @@ function DownloadPictures:__init()
 end
 
 function DownloadPictures:GetAvatarOnJoin(args) -- This is for the scoreboard
-    print("Getting avatar of Lord Noob")
     args.player:GetAvatar("small")
     Network:Broadcast("AvatarObtained", {["player"] = args.player})
 end
@@ -37,30 +36,26 @@ end
 
 
 function DownloadPictures:FetchAvatar_l(player)
+  execTimer:Restart()
 	local host = "api.steampowered.com"
 	local uri = "/ISteamUser/GetPlayerSummaries/v0002/?key=" .. GlobalSettings.APIKey .. "&steamids=" .. player:GetSteamId().id
-  print("Requesting avatar LOL")
 	MakeRequest(host, uri, 80, function(response)
 		if response and IsValid(player) then
-      print("Valid response & player.")
 			local status, err = pcall(function()
-        print("Decoding....")
         print(response)
 				local userdata = (json.decode(response)).response.players[1] -- Use whatever json library you have
-				print("Decoded.")
         print(userdata)
 				local url = userdata.avatarfull:gsub("http://", "")
 				local host = url:sub(0, url:find("/") - 1)
         
 				local uri = url:sub(url:find("/"), #url)
 
-				print("Requesting " .. player:GetName() .. "'s avatar.")
 
 
 				MakeRequest(host, uri, 80, function(response)
 					if response and IsValid(player) then
 						player:SetNetworkValue("avatar_s", tostring(mime.b64(response)))
-            print("Network value set")
+            print("Successfully retrieved " .. player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds.")
 					elseif IsValid(player) then
 						print("Failed to fetch " .. player:GetName() .. "'s avatar!")
 					else
@@ -82,28 +77,22 @@ end
 function DownloadPictures:FetchAvatar_s(player)
 	local host = "api.steampowered.com"
 	local uri = "/ISteamUser/GetPlayerSummaries/v0002/?key=" .. GlobalSettings.APIKey .. "&steamids=" .. player:GetSteamId().id
-  print("Requesting avatar LOL")
 	MakeRequest(host, uri, 80, function(response)
 		if response and IsValid(player) then
-      print("Valid response & player.")
 			local status, err = pcall(function()
-        print("Decoding....")
-        print(response)
 				local userdata = (json.decode(response)).response.players[1] -- Use whatever json library you have
-				print("Decoded.")
-        print(userdata)
 				local url = userdata.avatar:gsub("http://", "")
 				local host = url:sub(0, url:find("/") - 1)
         
 				local uri = url:sub(url:find("/"), #url)
 
-				print("Requesting " .. player:GetName() .. "'s avatar.")
+
 
 
 				MakeRequest(host, uri, 80, function(response)
 					if response and IsValid(player) then
 						player:SetNetworkValue("avatar_s", tostring(mime.b64(response)))
-            print("Network value set")
+            print("Successfully retrieved " .. player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds.")
 					elseif IsValid(player) then
 						print("Failed to fetch " .. player:GetName() .. "'s avatar!")
 					else
@@ -126,28 +115,24 @@ end
 function DownloadPictures:FetchAvatar_m(player)
 	local host = "api.steampowered.com"
 	local uri = "/ISteamUser/GetPlayerSummaries/v0002/?key=" .. GlobalSettings.APIKey .. "&steamids=" .. player:GetSteamId().id
-  print("Requesting avatar LOL")
 	MakeRequest(host, uri, 80, function(response)
 		if response and IsValid(player) then
-      print("Valid response & player.")
 			local status, err = pcall(function()
-        print("Decoding....")
         print(response)
 				local userdata = (json.decode(response)).response.players[1] -- Use whatever json library you have
-				print("Decoded.")
         print(userdata)
 				local url = userdata.avatarmedium:gsub("http://", "")
 				local host = url:sub(0, url:find("/") - 1)
         
 				local uri = url:sub(url:find("/"), #url)
 
-				print("Requesting " .. player:GetName() .. "'s avatar.")
+				
 
 
 				MakeRequest(host, uri, 80, function(response)
 					if response and IsValid(player) then
 						player:SetNetworkValue("avatar_s", tostring(mime.b64(response)))
-            print("Network value set")
+            print("Successfully retrieved " .. player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds.")
 					elseif IsValid(player) then
 						print("Failed to fetch " .. player:GetName() .. "'s avatar!")
 					else
@@ -173,8 +158,9 @@ function Player:GetAvatar(size)
   
   steamid64 = self:GetSteamId().id
   
+  print("Requesting " .. self:GetName() .. "'s avatar.")
+  
   if size == "small" then
-    print("Fetching avatar")
     DownloadPictures:FetchAvatar_s(self)
   elseif size == "medium" then
     DownloadPictures:FetchAvatar_m(self)
