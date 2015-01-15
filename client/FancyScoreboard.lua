@@ -1,3 +1,5 @@
+
+
 class("FancyScoreboard")
 
 function FancyScoreboard:__init()  
@@ -24,18 +26,13 @@ function FancyScoreboard:__init()
   pos = startpos
   pos.x = pos.x - width/2
 
-  placeholderAvatar = Image.Create(AssetLocation.Base64,
-"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAgACADASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAgUABgcD/8QALBAAAgEBBgQEBwAAAAAAAAAAAQIDAAQFBhIhMREiMnETFFGBFiVBQmGRwf/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwDI2Zs7cx3ooo57RKsUKSSyNoqICxPsKButu9WfDGLFwvdd5+Us3za0hUhtZAIhUHXQ+v8ABQVyaK0WaVop45IpF3SRSpHsaBWbOvMd60fH01otGCcPT374fxBIzMTlCuYNeGYDb7dO/wCazdete9BG6270xw+eGJLsPljauFqiPgDhxl5hy66a7a0vZWztyneiieaCZJoWeOVGDI6EhlI2IP0NA8xteVrvTF14T2yOWGQSZBDKQTEo0C6afqkC9a966TST2mZ5p3kllc8WdyWZj6knegVWzryneg//2Q==")
+  placeholderAvatar ="/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAgACADASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAgUABgcD/8QALBAAAgEBBgQEBwAAAAAAAAAAAQIDAAQFBhIhMREiMnETFFGBFiVBQmGRwf/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwDI2Zs7cx3ooo57RKsUKSSyNoqICxPsKButu9WfDGLFwvdd5+Us3za0hUhtZAIhUHXQ+v8ABQVyaK0WaVop45IpF3SRSpHsaBWbOvMd60fH01otGCcPT374fxBIzMTlCuYNeGYDb7dO/wCazdete9BG6270xw+eGJLsPljauFqiPgDhxl5hy66a7a0vZWztyneiieaCZJoWeOVGDI6EhlI2IP0NA8xteVrvTF14T2yOWGQSZBDKQTEo0C6afqkC9a966TST2mZ5p3kllc8WdyWZj6knegVWzryneg//2Q=="
   
   Events:Subscribe("KeyDown", self, self.TogglePList)
   Events:Subscribe("ActiveChanged", self, self.ActiveChanged)
   Events:Subscribe("Render", self, self.RenderFunction)
   Events:Subscribe("LocalPlayerInput", self, self.BlockDive)
   Events:Subscribe("MouseScroll", self, self.Scroll)
-  
-  if not GlobalSettings.StoreB64OnClient then
-    Events:Subscribe("ActiveChanged", self, self.Cleanup)
-  end
   
   Network:Subscribe("HereAreYourPlayers", self, self.UpdatePlayerTable)
 end
@@ -61,15 +58,6 @@ function FancyScoreboard:ActiveChanged()
   end
 end
 
-function FancyScoreboard:Cleanup()
-  if not active then
-    for i, v in pairs(PicturesTable) do
-      PicturesTable[i] = nil
-    end
-    
-    PicturesTable = {}
-  end
-end
 
   
 
@@ -113,7 +101,8 @@ function FancyScoreboard:RenderFunction()
       textpos = pos + Vector2(20+width/4, (rowHeight/2)-8)
       Render:DrawText(textpos + Vector2((width/3.7 - width/6)*1.2, 0), tostring(localPing), Color.White, 17)
       
-      local pic = Image.Create(AssetLocation.Base64, player:GetValue("avatar_s")) or placeholderAvatar
+      local picB64 = player:GetValue("avatar_s") or placeholderAvatar
+      local pic = Image.Create(AssetLocation.Base64, picB64)
       pic:SetPosition(pos + Vector2(10, (rowHeight/6)))
       pic:Draw()
 
