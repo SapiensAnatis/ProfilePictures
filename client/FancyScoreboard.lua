@@ -42,7 +42,7 @@ end
 
 
 function FancyScoreboard:TogglePList(args)
-  if args.key == 9 then
+  if args.key == 9 and Game:GetState() == GUIState.Game then
     active = not active
     scrollAmount = 0
     print("Active changed...")
