@@ -36,7 +36,10 @@ Stats
 ---------
 
 From my brief testing, given good conditions and a good Internet connection, it will complete the above usage example in 2.3 to 4.5 seconds.
-If Steam is down, it will take 5 seconds (the default timeout, this is configurable in the settings) and then give up, using the default "?" avatar for the gien player instead.
+This may deter you, given that you may now think that for a server of ~200 players, if you reload the module, it could take up to 7 minutes for it to load. 
+This is only the case for server restarts. The script makes use of Player:SetNetworkValue() which is persistent through reloads. If you reload the module, only new players will have their data requested.
+
+If Steam is down, it will take 5 seconds (the default timeout, this is configurable in the settings) and then give up, using the default "?" avatar for the given player instead.
 
 
 Credit

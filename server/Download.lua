@@ -29,17 +29,17 @@ function DownloadPictures:__init()
 end
 
 function DownloadPictures:GetAvatarOnJoin(args)
-  if GlobalSettings.GetAvatarSmallOnJoin then
-    args.player:GetAvatar("small") 
-  end
-  
-  if GlobalSettings.GetAvatarMedOnJoin then
-    args.player:GetAvatar("medium")
-  end
-  
-  if GlobalSettings.GetAvatarLargeOnJoin then
-    args.player:GetAvatar("large")
-  end
+    if GlobalSettings.GetAvatarSmallOnJoin and args.player:GetValue("avatar_s") == nil then
+      args.player:GetAvatar("small") 
+    end
+    
+    if GlobalSettings.GetAvatarMedOnJoin and args.player:GetValue("avatar_m") == nil then
+      args.player:GetAvatar("medium")
+    end
+    
+    if GlobalSettings.GetAvatarLargeOnJoin and args.player:GetValue("avatar_l") == nil then
+      args.player:GetAvatar("large")
+    end
 end
 
 
