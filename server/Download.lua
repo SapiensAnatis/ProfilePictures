@@ -35,20 +35,19 @@ end
 
 
 
+
 function DownloadPictures:FetchAvatar_l(player)
-  execTimer:Restart()
 	local host = "api.steampowered.com"
 	local uri = "/ISteamUser/GetPlayerSummaries/v0002/?key=" .. GlobalSettings.APIKey .. "&steamids=" .. player:GetSteamId().id
 	MakeRequest(host, uri, 80, function(response)
 		if response and IsValid(player) then
 			local status, err = pcall(function()
-        print(response)
 				local userdata = (json.decode(response)).response.players[1] -- Use whatever json library you have
-        print(userdata)
 				local url = userdata.avatarfull:gsub("http://", "")
 				local host = url:sub(0, url:find("/") - 1)
         
 				local uri = url:sub(url:find("/"), #url)
+
 
 
 
@@ -74,6 +73,7 @@ function DownloadPictures:FetchAvatar_l(player)
 		end
 	end)
 end
+
 function DownloadPictures:FetchAvatar_s(player)
 	local host = "api.steampowered.com"
 	local uri = "/ISteamUser/GetPlayerSummaries/v0002/?key=" .. GlobalSettings.APIKey .. "&steamids=" .. player:GetSteamId().id

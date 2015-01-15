@@ -1,6 +1,8 @@
 self = {}
 self.requests = {}
 
+Timeout = 2.1
+
 socket = require("socket")
 
 function DispatchRequests()
@@ -63,3 +65,7 @@ function MakeRequest(host, uri, port, callback)
 end
 
 Events:Subscribe("PostTick", DispatchRequests)
+
+Events:Subscribe("ModuleLoad", function()
+    Timeout = GlobalSettings.Timeout
+end)
