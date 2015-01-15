@@ -28,9 +28,18 @@ function DownloadPictures:__init()
   
 end
 
-function DownloadPictures:GetAvatarOnJoin(args) -- This is for the scoreboard
-    args.player:GetAvatar("small")
-    Network:Broadcast("AvatarObtained", {["player"] = args.player})
+function DownloadPictures:GetAvatarOnJoin(args)
+  if GlobalSettings.GetAvatarSmallOnJoin then
+    args.player:GetAvatar("small") 
+  end
+  
+  if GlobalSettings.GetAvatarMedOnJoin then
+    args.player:GetAvatar("medium")
+  end
+  
+  if GlobalSettings.GetAvatarLargeOnJoin then
+    args.player:GetAvatar("large")
+  end
 end
 
 

@@ -4,7 +4,7 @@ AvatarUtility
 About
 ---------
 
-**Warning**: This script is in heavy beta right now. Updates are coming which will make the script more efficient and easier to use.
+**Warning**: This script is not tested, nor designed for servers with large playercounts >20.
 
 That said, if you're still interested, this script allows you to get avatars from the Steam database and incorporate them into your scripts.
 
@@ -12,27 +12,32 @@ Usage:
 ----------
 
 ```lua
--- Function: Player:GetAvatar(string: size)
+-- Value: avatar_<s, m, or l>
 -- Returns: string: base64 of player avatar in the given size
--- Availability: Server-side only
+-- Availability: Server and client side
 -- Example usage:
 
-function PlayerJoin(args)
-	local Base64 = args.player:GetAvatar("medium") -- size can be medium, small or large; if something else or nothing (e.g "12353467rehb\sdfh") is used, it will default to small.
-	Network:Send("DrawThis", Base64)
-end
+local smallAvatar = LocalPlayer:GetValue("avatar_s")
+local medAvatar = LocalPlayer:GetValue("avatar_m")
+local largeAvatar = LocalPlayer:GetValue("avatar_l")
 
-Events:Subscribe("PlayerJoin", PlayerJoin)
 ```
 
-This sends the Base64 for the player's avatar to said player, where you can draw it or do whatever.
+This returns the Base64 for the player's avatar in the given size, where you can draw it or do whatever.
+
+Available settings
+-------------------
+
+* Timeout: this is how long the script will await a response from the Steam API. Use to avoid stalling the script/server.
+* APIKey: this is a necessary setting you have to use to get profile pictures. It's a unique key that you can request [here](steamcommunity.com/dev/apikey).
+* Avatar sizes to get on ClientModuleLoad/join: these dictate what sizes should be requested when the player joins the server. The small option is necessary for the given scoreboard to work.
 
 Stats
 ---------
 
-From my brief testing, given good conditions and a good Internet connection, it will complete the above usage example in 0.8 to 1.3 seconds.
-If Steam is down, it will take 30 seconds before giving up and unloading the module.
-Note: Steam status checking is planned in a later release, as well as a custom timeout for this status check. By default, it will be five seconds.
+From my brief testing, given good conditions and a good Internet connection, it will complete the above usage example in 2.3 to 4.5 seconds.
+If Steam is down, it will take 5 seconds (the default timeout, this is configurable in the settings) and then give up, using the default "?" avatar for the gien player instead.
+
 
 Credit
 ---------
