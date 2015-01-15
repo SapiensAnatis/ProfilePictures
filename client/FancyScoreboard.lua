@@ -32,13 +32,13 @@ function FancyScoreboard:__init()
   Events:Subscribe("Render", self, self.RenderFunction)
   Events:Subscribe("LocalPlayerInput", self, self.BlockDive)
   Events:Subscribe("MouseScroll", self, self.Scroll)
+  Events:Subscribe("PlayerNetworkValueChange", self, self.DefineIMG)
   
   if not GlobalSettings.StoreB64OnClient then
     Events:Subscribe("ActiveChanged", self, self.Cleanup)
   end
   
   Network:Subscribe("HereAreYourPlayers", self, self.UpdatePlayerTable)
-  Network:Subscribe("AvatarObtained", self, self.CacheAvatarData)
 end
 
 
@@ -52,20 +52,20 @@ function FancyScoreboard:TogglePList(args)
 end
 
 
+function FancyScoreboard:DefineIMG(args)
+  print("Image defined")
+  if string.find(args.key, "_s") then
+    print("Image stored")
+    PicturesTable[tostring(args.player:GetSteamId())] = Image.Create(AssetLocation.Base64, args.value)
+  end
+end
+
 
 function FancyScoreboard:ActiveChanged()
   Network:Send("ActiveChanged", LocalPlayer)
   -- Request the player avatars for the list
   if active then
     Network:Send("RequestAllPlayers", LocalPlayer)
-    for i, player in pairs(PlayerTable) do
-      if not PicturesTable[tostring(player:GetSteamId())] then
-        if player != LocalPlayer then
-          Network:Send("RequestPlayerAvatar", {["size"] = "small", ["player"] = player})
-          print("Requesting avatars")
-        end
-      end
-    end
   end
 end
 
@@ -77,12 +77,6 @@ function FancyScoreboard:Cleanup()
     
     PicturesTable = {}
   end
-end
-
-
-function FancyScoreboard:CacheAvatarData(args)
-  PicturesTable[tostring(args.player:GetSteamId())] = Image.Create(AssetLocation.Base64, args.b64)
-  print("Created entry for player", args.player:GetName(), "in pictures table.")
 end
 
   
@@ -127,14 +121,10 @@ function FancyScoreboard:RenderFunction()
       textpos = pos + Vector2(20+width/4, (rowHeight/2)-8)
       Render:DrawText(textpos + Vector2((width/3.7 - width/6)*1.2, 0), tostring(localPing), Color.White, 17)
       
-      if PicturesTable[tostring(player:GetSteamId())] then
-        local pic = PicturesTable[tostring(player:GetSteamId())]
-        pic:SetPosition(pos + Vector2(10, (rowHeight/6)))
-        pic:Draw()
-      else
-        placeholderAvatar:SetPosition(pos + Vector2(10, (rowHeight/6)))
-        placeholderAvatar:Draw()
-      end
+      local pic = PicturesTable[tostring(player:GetSteamId())] or placeholderAvatar
+      pic:SetPosition(pos + Vector2(10, (rowHeight/6)))
+      pic:Draw()
+
       
       
     end
