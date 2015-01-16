@@ -1,9 +1,10 @@
 Network:Subscribe("ClientIsMurderer", function()
-    localKillcount = localKillcount + 1
+    Killcount = Killcount + 1
 end)
 
 Network:Subscribe("ClientIsMurdered", function()
-    localDeathcount = localDeathcount + 1
+    Deathcount = Deathcount + 1
+    print("Adding 1 to deathcount")
 end)
 
 PingTimer = Timer()
@@ -15,8 +16,6 @@ Events:Subscribe("Render", function()
     end
 end)
 
-Network:Subscribe("DeliverPing", function(args)
-    localPing = args
-end)
+
 
 Network:Send("RequestPing")

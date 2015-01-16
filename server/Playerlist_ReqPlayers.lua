@@ -6,3 +6,10 @@ Network:Subscribe("RequestAllPlayers", function(args, player)
     
     Network:Send(player, "HereAreYourPlayers", nArgs)
 end)
+
+Events:Subscribe("PlayerDeath", function(args)
+    if IsValid(args.killer) then
+      Network:Send(args.killer, "ClientIsMurderer")
+    end
+    Network:Send(args.player, "ClientIsMurdered")
+end)

@@ -9,6 +9,7 @@ function FancyScoreboard:__init()
   
 
   startpos = Vector2(Render.Width/2, 0)
+  startpos_f = startpos
   
   rowHeight = 50
   width = Render.Width/2
@@ -19,9 +20,9 @@ function FancyScoreboard:__init()
 
   PlayerCount = 0
   
-  localKillcount = 0
-  localDeathcount = 0
-  localPing = 0
+  Killcount = 0
+  Deathcount = 0
+  Ping = 20
 
   pos = startpos
   pos.x = pos.x - width/2
@@ -37,6 +38,10 @@ function FancyScoreboard:__init()
   Network:Subscribe("HereAreYourPlayers", self, self.UpdatePlayerTable)
 end
 
+Network:Subscribe("DeliverPing", function(args)
+    Ping = args 
+    print("Got ping: " .. Ping .. "ms.")
+end)
 
 function FancyScoreboard:TogglePList(args)
   if args.key == 9 and Game:GetState() == GUIState.Game then
@@ -79,10 +84,7 @@ function FancyScoreboard:RenderFunction()
     
     
     Render:DrawLine(pos + Vector2(0, rowHeight), pos + Vector2(width, rowHeight), Color.White)
-
     
-    
-    pos = pos + Vector2(0, rowHeight)
     for i, player in pairs(PlayerTable) do   
       PlayerCount = PlayerCount + 1
       color = Color(0, 0, 0, 0)
@@ -91,15 +93,16 @@ function FancyScoreboard:RenderFunction()
       else 
         color.a = 47*1.5
       end
-      
+      pos = pos + Vector2(0, rowHeight)
       Render:FillArea(pos + Vector2(0, 0), Vector2(width, rowHeight), color)
 
-      
       Render:DrawText(pos + Vector2(20+32, (rowHeight/2)-8), player:GetName(), Color.White, 17)
-      Render:DrawText(pos + Vector2(20+width/5, (rowHeight/2)-8), tostring(localKillcount), Color.White, 17)
-      Render:DrawText(pos + Vector2(20+width/3.7, (rowHeight/2)-8), tostring(localDeathcount), Color.White, 17)
+      Render:DrawText(pos + Vector2(20+width/5, (rowHeight/2)-8), tostring(Killcount), Color.White, 17)
+      Render:DrawText(pos + Vector2(20+width/3.7, (rowHeight/2)-8), tostring(Deathcount), Color.White, 17)
       textpos = pos + Vector2(20+width/4, (rowHeight/2)-8)
-      Render:DrawText(textpos + Vector2((width/3.7 - width/6)*1.2, 0), tostring(localPing), Color.White, 17)
+      Render:DrawText(textpos + Vector2((width/3.7 - width/6)*1.2, 0), tostring(Ping), Color.White, 17)
+      
+
       
       local picB64 = player:GetValue("avatar_s") or placeholderAvatar
       local pic = Image.Create(AssetLocation.Base64, picB64)
@@ -109,9 +112,10 @@ function FancyScoreboard:RenderFunction()
       
       
     end
-      pos = pos - Vector2(0, rowHeight)
-      Render:DrawText(pos + Vector2(20+width/1.38, (rowHeight/1.5)-8), "Total players: " .. PlayerCount, Color.White, 17)
-      pos = pos + Vector2(0, rowHeight)
+      pos_o = startpos_f
+      Render:DrawText(pos_o + Vector2(20+width/1.38, (rowHeight/1.5)-8), "Total players: " .. PlayerCount, Color.White, 17)
+
+      
 
       if pos.y > Render.Height then
         allowScroll = true
