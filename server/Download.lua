@@ -62,7 +62,7 @@ function DownloadPictures:FetchAvatar_l(player)
 
 				MakeRequest(host, uri, 80, function(response)
 					if response and IsValid(player) then
-						player:SetNetworkValue("avatar_s", tostring(mime.b64(response)))
+						player:SetNetworkValue("avatar_l", tostring(mime.b64(response)))
             print("Successfully retrieved " .. player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds.")
 					elseif IsValid(player) then
 						print("Failed to fetch " .. player:GetName() .. "'s avatar!")
@@ -140,7 +140,7 @@ function DownloadPictures:FetchAvatar_m(player)
 
 				MakeRequest(host, uri, 80, function(response)
 					if response and IsValid(player) then
-						player:SetNetworkValue("avatar_s", tostring(mime.b64(response)))
+						player:SetNetworkValue("avatar_m", tostring(mime.b64(response)))
             print("Successfully retrieved " .. player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds.")
 					elseif IsValid(player) then
 						print("Failed to fetch " .. player:GetName() .. "'s avatar!")
