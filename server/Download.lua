@@ -46,6 +46,7 @@ function DownloadPictures:GetAvatarOnJoin(args)
       elseif cachedAvatars.small[tostring(args.player:GetSteamId())] != nil then
         args.player:SetValue("avatar_s", cachedAvatars.small[tostring(args.player:GetSteamId())])
         print("Got player " .. args.player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds. (pre-cached from leave)")
+        cachedAvatars.small[tostring(args.player:GetSteamId())] = nil
       elseif args.player:GetValue("avatar_s") != nil then
         print("Player " .. args.player:GetName() .. "'s avatar already existed as a PlayerNetworkValue.")
       end
@@ -57,6 +58,7 @@ function DownloadPictures:GetAvatarOnJoin(args)
       elseif cachedAvatars.medium[tostring(args.player:GetSteamId())] != nil then
         args.player:SetValue("avatar_m", cachedAvatars.medium[tostring(args.player:GetSteamId())])
         print("Got player " .. args.player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds. (pre-cached from leave)")
+        cachedAvatars.medium[tostring(args.player:GetSteamId())] = nil
       elseif args.player:GetValue("avatar_m") then
         print("Player " .. args.player:GetName() .. "'s avatar already existed as a PlayerNetworkValue.")
       end
@@ -68,6 +70,7 @@ function DownloadPictures:GetAvatarOnJoin(args)
       elseif cachedAvatars.large[tostring(args.player:GetSteamId())] != nil then
         args.player:SetValue("avatar_l", cachedAvatars.large[tostring(args.player:GetSteamId())])
         print("Got player " .. args.player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds. (pre-cached from leave)")
+        cachedAvatars.large[tostring(args.player:GetSteamId())] = nil
       elseif args.player:GetValue("avatar_l") then
         print("Player " .. args.player:GetName() .. "'s avatar already existed as a PlayerNetworkValue.")
       end
