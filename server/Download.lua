@@ -169,6 +169,8 @@ function Player:GetAvatar(size)
   
   print("Requesting " .. self:GetName() .. "'s avatar.")
   
+  execTimer:Restart()
+  
   if size == "small" then
     DownloadPictures:FetchAvatar_s(self)
   elseif size == "medium" then
