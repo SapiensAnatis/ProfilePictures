@@ -1,5 +1,15 @@
 
-
+cachedAvatars = {
+  large = {
+    
+  },
+  medium = {
+    
+  },
+  small = {
+  
+  }
+}
 
 
 local http = require("socket.http")
@@ -29,16 +39,39 @@ function DownloadPictures:__init()
 end
 
 function DownloadPictures:GetAvatarOnJoin(args)
-    if GlobalSettings.GetAvatarSmallOnJoin and args.player:GetValue("avatar_s") == nil then
-      args.player:GetAvatar("small") 
+    execTimer:Restart()
+    if GlobalSettings.GetAvatarSmallOnJoin then
+      if cachedAvatars.small[tostring(args.player:GetSteamId())] == nil and args.player:GetValue("avatar_s") == nil then
+        args.player:GetAvatar("small") 
+      elseif cachedAvatars.small[tostring(args.player:GetSteamId())] != nil then
+        args.player:SetValue("avatar_s", cachedAvatars.small[tostring(args.player:GetSteamId())])
+        print("Got player " .. args.player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds. (pre-cached from leave)")
+      elseif args.player:GetValue("avatar_s") != nil then
+        print("Player " .. args.player:GetName() .. "'s avatar already existed as a PlayerNetworkValue.")
+      end
     end
     
-    if GlobalSettings.GetAvatarMedOnJoin and args.player:GetValue("avatar_m") == nil then
-      args.player:GetAvatar("medium")
+    if GlobalSettings.GetAvatarMedOnJoin then
+      if cachedAvatars.medium[tostring(args.player:GetSteamId())] == nil and args.player:GetValue("avatar_m") == nil then
+        args.player:GetAvatar("medium")
+      elseif cachedAvatars.medium[tostring(args.player:GetSteamId())] != nil then
+        args.player:SetValue("avatar_m", cachedAvatars.medium[tostring(args.player:GetSteamId())])
+        print("Got player " .. args.player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds. (pre-cached from leave)")
+      elseif args.player:GetValue("avatar_m") then
+        print("Player " .. args.player:GetName() .. "'s avatar already existed as a PlayerNetworkValue.")
+      end
     end
     
-    if GlobalSettings.GetAvatarLargeOnJoin and args.player:GetValue("avatar_l") == nil then
-      args.player:GetAvatar("large")
+    if GlobalSettings.GetAvatarLargeOnJoin then
+      if cachedAvatars.large[tostring(args.player:GetSteamId())] == nil and args.player:GetValue("avatar_l") == nil then
+        args.player:GetAvatar("large")
+      elseif cachedAvatars.large[tostring(args.player:GetSteamId())] != nil then
+        args.player:SetValue("avatar_l", cachedAvatars.large[tostring(args.player:GetSteamId())])
+        print("Got player " .. args.player:GetName() .. "'s avatar in " .. execTimer:GetSeconds() .. " seconds. (pre-cached from leave)")
+      elseif args.player:GetValue("avatar_l") then
+        print("Player " .. args.player:GetName() .. "'s avatar already existed as a PlayerNetworkValue.")
+      end
+      
     end
 end
 
@@ -188,3 +221,20 @@ Network:Subscribe("RequestPing", function(args, player)
     Network:Send(player, "DeliverPing", nArgs)
 end)
 
+function PlayerQuitCache(args)
+    if args.player:GetValue("avatar_s") != nil then
+      cachedAvatars.small[tostring(args.player:GetSteamId())] = args.player:GetValue("avatar_s")
+    end
+    
+    if args.player:GetValue("avatar_m") != nil then
+      cachedAvatars.medium[tostring(args.player:GetSteamId())] = args.player:GetValue("avatar_m")
+    end
+    
+    if args.player:GetValue("avatar_l") != nil then
+      cachedAvatars.large[tostring(args.player:GetSteamId())] = args.player:GetValue("avatar_l")
+    end
+end
+
+if GlobalSettings.CacheAvatarOnLeave then
+  Events:Subscribe("PlayerQuit", PlayerQuitCache)
+end
