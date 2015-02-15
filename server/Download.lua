@@ -88,7 +88,7 @@ function DownloadPictures:FetchAvatar_l(player)
 		if response and IsValid(player) then
 			local status, err = pcall(function()
 				local userdata = (json.decode(response)).response.players[1] -- Use whatever json library you have
-				local url = userdata.avatarfull:gsub("http://", "")
+				local url = userdata.avatarfull:gsub("https://", "")
 				local host = url:sub(0, url:find("/") - 1)
         
 				local uri = url:sub(url:find("/"), #url)
@@ -126,7 +126,7 @@ function DownloadPictures:FetchAvatar_s(player)
 		if response and IsValid(player) then
 			local status, err = pcall(function()
 				local userdata = (json.decode(response)).response.players[1] -- Use whatever json library you have
-				local url = userdata.avatar:gsub("http://", "")
+				local url = userdata.avatar:gsub("https://", "")
 				local host = url:sub(0, url:find("/") - 1)
         
 				local uri = url:sub(url:find("/"), #url)
@@ -166,7 +166,7 @@ function DownloadPictures:FetchAvatar_m(player)
         print(response)
 				local userdata = (json.decode(response)).response.players[1] -- Use whatever json library you have
         print(userdata)
-				local url = userdata.avatarmedium:gsub("http://", "")
+				local url = userdata.avatarmedium:gsub("https://", "")
 				local host = url:sub(0, url:find("/") - 1)
         
 				local uri = url:sub(url:find("/"), #url)
